@@ -1,0 +1,22 @@
+{
+  "name": "federation",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://codifynw@github.com/codifynw/federation.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/codifynw/federation/issues"
+  },
+  "homepage": "https://github.com/codifynw/federation#readme",
+  "dependencies": {
+    "webpack": "^5.38.1"
+  }
+}
