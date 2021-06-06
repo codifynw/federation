@@ -49,5 +49,8 @@
   "repository": {
     "type": "git",
     "url": "git@github.com:taniarascia/webpack-boilerplate"
+  },
+  "dependencies": {
+    "scriptjs": "^2.5.9"
   }
 }
