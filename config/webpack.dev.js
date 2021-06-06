@@ -1,15 +1,15 @@
-const webpack = require("webpack");
-const { merge } = require("webpack-merge");
+const webpack = require('webpack')
+const { merge } = require('webpack-merge')
 
-const common = require("./webpack.common.js");
-const paths = require("./paths");
+const common = require('./webpack.common.js')
+const paths = require('./paths')
 
 module.exports = merge(common, {
   // Set the mode to development or production
-  mode: "development",
+  mode: 'development',
 
   // Control how source maps are generated
-  devtool: "inline-source-map",
+  devtool: 'inline-source-map',
 
   // Spin up a server for quick development
   devServer: {
@@ -27,13 +27,13 @@ module.exports = merge(common, {
       {
         test: /\.(scss|css)$/,
         use: [
-          "style-loader",
+          'style-loader',
           {
-            loader: "css-loader",
+            loader: 'css-loader',
             options: { sourceMap: true, importLoaders: 1, modules: true },
           },
-          { loader: "postcss-loader", options: { sourceMap: true } },
-          { loader: "sass-loader", options: { sourceMap: true } },
+          { loader: 'postcss-loader', options: { sourceMap: true } },
+          { loader: 'sass-loader', options: { sourceMap: true } },
         ],
       },
     ],
@@ -43,4 +43,4 @@ module.exports = merge(common, {
     // Only update what has changed on hot reload
     new webpack.HotModuleReplacementPlugin(),
   ],
-});
+})
