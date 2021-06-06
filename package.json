@@ -18,6 +18,11 @@
   },
   "homepage": "https://github.com/codifynw/federation#readme",
   "dependencies": {
+    "clean-webpack-plugin": "^4.0.0-alpha.0",
+    "copy-webpack-plugin": "^9.0.0",
+    "eslint-webpack-plugin": "^2.5.4",
+    "html-webpack-plugin": "^5.3.1",
+    "prettier-webpack-plugin": "^1.2.0",
     "webpack": "^5.38.1"
   },
   "devDependencies": {
