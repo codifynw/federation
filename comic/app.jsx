@@ -1,124 +1,46 @@
-import React, { useState, Suspense } from "react";
+import React, { useState, useEffect } from "react";
+import { imgData } from "./loader-data-url";
 
-// const XKCD = lazy(() => import("comic/XKCD"));
-function loadComponent(scope, module) {
-  return async () => {
-    // Initializes the share scope. This fills it with known provided modules from this build and all remotes
-    await __webpack_init_sharing__("default");
-    const container = window[scope]; // or get the container somewhere else
-    // Initialize the container, it may provide shared modules
-    await container.init(__webpack_share_scopes__.default);
-    const factory = await window[scope].get(module);
-    const Module = factory();
-    return Module;
-  };
+export default function App({ shouldFetch }) {
+    const [data, setData] = useState({});
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        (async () => {
+            try {
+                setLoading(true);
+                const response = await fetch(
+                    "https://xkcd-imgs.herokuapp.com/"
+                );
+                const result = await response.json();
+                setData(result);
+                setLoading(false);
+            } catch (err) {
+                console.error(err);
+            }
+        })();
+    }, [shouldFetch]);
+
+    return <ImageLoader src={loading ? imgData : data.url} alt={data.title} />;
 }
 
-const useDynamicScript = (args) => {
-  const [ready, setReady] = React.useState(false);
-  const [failed, setFailed] = React.useState(false);
+const ImageLoader = React.memo(({ src, alt = "" }) => {
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        const imageToLoad = new Image();
+        imageToLoad.src = src;
+        imageToLoad.onload = () => {
+            setLoading(false);
+        };
+    }, [src]);
 
-  React.useEffect(() => {
-    if (!args.url) {
-      return;
-    }
-
-    const element = document.createElement("script");
-
-    element.src = args.url;
-    element.type = "text/javascript";
-    element.async = true;
-
-    setReady(false);
-    setFailed(false);
-
-    element.onload = () => {
-      console.log(`Dynamic Script Loaded: ${args.url}`);
-      setReady(true);
-    };
-
-    element.onerror = () => {
-      console.error(`Dynamic Script Error: ${args.url}`);
-      setReady(false);
-      setFailed(true);
-    };
-
-    document.head.appendChild(element);
-
-    return () => {
-      console.log(`Dynamic Script Removed: ${args.url}`);
-      document.head.removeChild(element);
-    };
-  }, [args.url]);
-
-  return {
-    ready,
-    failed
-  };
-};
-
-function System(props) {
-  const { ready, failed } = useDynamicScript({
-    url: props.system && props.system.url
-  });
-
-  if (!props.system) {
-    return <h2>Not system specified</h2>;
-  }
-
-  if (!ready) {
-    return <h2>Loading dynamic script: {props.system.url}</h2>;
-  }
-
-  if (failed) {
-    return <h2>Failed to load dynamic script: {props.system.url}</h2>;
-  }
-
-  const Component = React.lazy(
-    loadComponent(props.system.scope, props.system.module)
-  );
-
-  return (
-    <React.Suspense fallback="Loading System">
-      <Component />
-    </React.Suspense>
-  );
-}
-
-const App = () => {
-  const [system, setSystem] = React.useState(undefined);
-
-  function setComicApp() {
-    setSystem({
-      url: "http://localhost:1338/remoteEntry.js",
-      scope: "comic",
-      module: "./XKCD"
-    });
-  }
-  const [fetchComic, setFetchComic] = useState(0);
-
-  return (
-    <>
-      <button
-        onClick={() => {
-          setFetchComic((currentFetch) => currentFetch + 1);
-          setComicApp();
-        }}
-        style={{ marginBottom: "2rem" }}
-      >
-        Dynamically Fetch Comic from Remote Module
-      </button>
-      {fetchComic ? (
-        <Suspense fallback={() => "Meow"}>
-          <div>
-            {" "}
-            <System system={system} />
-            {/* <XKCD shouldFetch={fetchComic} /> */}
-          </div>
-        </Suspense>
-      ) : null}
-    </>
-  );
-};
-
-export default App;
+    return (
+        <img
+            src={loading ? imgData : src}
+            style={{
+                opacity: loading ? 0.5 : 1,
+                transition: "opacity .15s linear",
+            }}
+            alt={alt}
+        />
+    );
+});
