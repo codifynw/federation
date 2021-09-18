@@ -1,124 +1,85 @@
-import React, { useState, Suspense } from "react";
-
-// const XKCD = lazy(() => import("comic/XKCD"));
 function loadComponent(scope, module) {
+  console.log("log one BC");
   return async () => {
+    console.log("log two BC");
     // Initializes the share scope. This fills it with known provided modules from this build and all remotes
     await __webpack_init_sharing__("default");
+    console.log("log one");
     const container = window[scope]; // or get the container somewhere else
+    console.log("log two");
+    console.log("container: ", container);
     // Initialize the container, it may provide shared modules
     await container.init(__webpack_share_scopes__.default);
+    console.log("log three");
     const factory = await window[scope].get(module);
+    console.log("log four");
     const Module = factory();
+    console.log("log five");
     return Module;
   };
 }
 
 const useDynamicScript = (args) => {
-  const [ready, setReady] = React.useState(false);
-  const [failed, setFailed] = React.useState(false);
+  let ready = false;
+  let failed = false;
 
-  React.useEffect(() => {
-    if (!args.url) {
-      return;
-    }
+  if (!args.url) {
+    return;
+  }
 
-    const element = document.createElement("script");
+  const element = document.createElement("script");
 
-    element.src = args.url;
-    element.type = "text/javascript";
-    element.async = true;
+  element.src = args.url;
+  element.type = "text/javascript";
+  element.async = true;
 
-    setReady(false);
-    setFailed(false);
+  ready = false;
+  failed = false;
 
-    element.onload = () => {
-      console.log(`Dynamic Script Loaded: ${args.url}`);
-      setReady(true);
-    };
+  element.onload = () => {
+    console.log(`Dynamic Script Loaded: ${args.url}`);
+    ready = true;
+  };
 
-    element.onerror = () => {
-      console.error(`Dynamic Script Error: ${args.url}`);
-      setReady(false);
-      setFailed(true);
-    };
+  element.onerror = () => {
+    console.error(`Dynamic Script Error: ${args.url}`);
+    ready = false;
+    failed = true;
+  };
 
-    document.head.appendChild(element);
-
-    return () => {
-      console.log(`Dynamic Script Removed: ${args.url}`);
-      document.head.removeChild(element);
-    };
-  }, [args.url]);
+  document.head.appendChild(element);
 
   return {
     ready,
-    failed
+    failed,
   };
 };
 
 function System(props) {
   const { ready, failed } = useDynamicScript({
-    url: props.system && props.system.url
+    url: props.url,
   });
 
-  if (!props.system) {
-    return <h2>Not system specified</h2>;
-  }
-
   if (!ready) {
-    return <h2>Loading dynamic script: {props.system.url}</h2>;
+    console.log("Loading dynamic script: ", props.url);
   }
 
   if (failed) {
-    return <h2>Failed to load dynamic script: {props.system.url}</h2>;
+    console.log("Failed to load dynamic script: ", props.url);
   }
 
-  const Component = React.lazy(
-    loadComponent(props.system.scope, props.system.module)
-  );
+  console.log('scope: ', props.scope);
+  console.log('module: ', props.module);
 
-  return (
-    <React.Suspense fallback="Loading System">
-      <Component />
-    </React.Suspense>
-  );
+  return loadComponent(props.scope, props.module);
 }
 
-const App = () => {
-  const [system, setSystem] = React.useState(undefined);
+const App = System({
+  url: "http://localhost:1338/remoteEntry.js",
+  scope: "comic",
+  module: "./XKCD",
+});
 
-  function setComicApp() {
-    setSystem({
-      url: "http://localhost:1338/remoteEntry.js",
-      scope: "comic",
-      module: "./XKCD"
-    });
-  }
-  const [fetchComic, setFetchComic] = useState(0);
-
-  return (
-    <>
-      <button
-        onClick={() => {
-          setFetchComic((currentFetch) => currentFetch + 1);
-          setComicApp();
-        }}
-        style={{ marginBottom: "2rem" }}
-      >
-        Dynamically Fetch Comic from Remote Module
-      </button>
-      {fetchComic ? (
-        <Suspense fallback={() => "Meow"}>
-          <div>
-            {" "}
-            <System system={system} />
-            {/* <XKCD shouldFetch={fetchComic} /> */}
-          </div>
-        </Suspense>
-      ) : null}
-    </>
-  );
-};
+App();
 
 export default App;

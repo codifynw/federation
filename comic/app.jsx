@@ -20,6 +20,8 @@ export default function App({ shouldFetch }) {
         })();
     }, [shouldFetch]);
 
+    console.log('inside comic app')
+
     return <ImageLoader src={loading ? imgData : data.url} alt={data.title} />;
 }
 
