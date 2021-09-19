@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { imgData } from "./loader-data-url";
+window.test = 'this is a test string'
 
+<<<<<<< Updated upstream
 export default function App({ shouldFetch }) {
     const [data, setData] = useState({});
     const [loading, setLoading] = useState(true);
@@ -23,26 +23,8 @@ export default function App({ shouldFetch }) {
     console.log('inside comic app')
 
     return <ImageLoader src={loading ? imgData : data.url} alt={data.title} />;
+=======
+export default function App() {
+    return 'this is a string'
+>>>>>>> Stashed changes
 }
-
-const ImageLoader = React.memo(({ src, alt = "" }) => {
-    const [loading, setLoading] = useState(true);
-    useEffect(() => {
-        const imageToLoad = new Image();
-        imageToLoad.src = src;
-        imageToLoad.onload = () => {
-            setLoading(false);
-        };
-    }, [src]);
-
-    return (
-        <img
-            src={loading ? imgData : src}
-            style={{
-                opacity: loading ? 0.5 : 1,
-                transition: "opacity .15s linear",
-            }}
-            alt={alt}
-        />
-    );
-});
